@@ -12,6 +12,7 @@ class SignupForm extends Model
     public $username;
     public $email;
     public $password;
+    public $rePassword;
 
 
     /**
@@ -22,17 +23,20 @@ class SignupForm extends Model
         return [
             ['username', 'trim'],
             ['username', 'required'],
-            ['username', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This username has already been taken.'],
+            ['username', 'unique', 'targetClass' => '\common\models\User', 'message' => '用户名已经存在，请重新输入！'],
             ['username', 'string', 'min' => 2, 'max' => 255],
 
             ['email', 'trim'],
             ['email', 'required'],
             ['email', 'email'],
             ['email', 'string', 'max' => 255],
-            ['email', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This email address has already been taken.'],
+            ['email', 'unique', 'targetClass' => '\common\models\User', 'message' => '邮箱已经存在，请重新输入！'],
 
             ['password', 'required'],
             ['password', 'string', 'min' => 6],
+
+            ['rePassword', 'required'],
+            ['rePassword', 'compare', 'compareAttribute' => 'password', 'message' => '两次输入的密码不一致。'],
         ];
     }
 
@@ -54,5 +58,15 @@ class SignupForm extends Model
         $user->generateAuthKey();
         
         return $user->save() ? $user : null;
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'username' => '用户名',
+            'password' => '密码',
+            'rePassword' => '确认密码',
+            'email' => '邮箱',
+        ];
     }
 }
