@@ -88,11 +88,34 @@ class SiteController extends Controller
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
-
         $model = new LoginForm();
+
+        // ajax validate.
+//        if( isset($_POST['ajax']) && $_POST['ajax'] === 'login-form')
+//        {
+//            foreach( $_POST['LoginForm'] as $info => $value)
+//            {
+//                $model -> $info = $value;
+//            }
+//        } else{
+//            return $this->renderAjax('login', [
+//                'model' => $model,
+//            ]);
+//        }
+
+        if(Yii::$app->session->get('loginCaptchaRequired') + 1 >= 3){
+            $model->setScenario('captchaScenario');
+        }
+
+        //if ($model->validate() && $model->load(Yii::$app->request->post()) && $model->login()) {
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+                return $this->goBack();
         } else {
+            if($model->scenario == 'captchaScenario'){
+                // 清除验证码
+                $model->setVerifyCode('');
+            }
+            //return $this->renderAjax('login', [
             return $this->render('login', [
                 'model' => $model,
             ]);

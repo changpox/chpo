@@ -54,7 +54,7 @@ class PasswordResetRequestForm extends Model
             }
         }
 
-        return Yii::$app
+        $result =Yii::$app
             ->mailer
             ->compose(
                 ['html' => 'passwordResetToken-html', 'text' => 'passwordResetToken-text'],
@@ -64,5 +64,12 @@ class PasswordResetRequestForm extends Model
             ->setTo($this->email)
             ->setSubject('Password reset for ' . Yii::$app->name)
             ->send();
+        return $result;
+    }
+    public function attributeLabels()
+    {
+        return [
+            'email' => '邮箱',
+        ];
     }
 }

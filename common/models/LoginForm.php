@@ -30,7 +30,7 @@ class LoginForm extends Model
             // password is validated by validatePassword()
             ['password', 'validatePassword'],
             // verifyCode needs to be entered correctly
-            ['verifyCode', 'captcha'],
+            ['verifyCode', 'captcha', 'on' => 'captchaScenario'],
         ];
     }
 
@@ -58,9 +58,12 @@ class LoginForm extends Model
      */
     public function login()
     {
-        if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
+        if ($this->validate() && Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0)) {
+            Yii::$app->session->remove('loginCaptchaRequired');
+            return true;
         } else {
+            $count = Yii::$app->session->get('loginCaptchaRequired') + 1;
+            Yii::$app->session->set('loginCaptchaRequired', $count);
             return false;
         }
     }
@@ -73,7 +76,12 @@ class LoginForm extends Model
     protected function getUser()
     {
         if ($this->_user === null) {
-            $this->_user = User::findByUsername($this->username);
+            if(strpos($this->username, '@')){
+                $this->_user = User::findByEmail($this->username);
+            }else{
+                $this->_user = User::findByUsername($this->username);
+            }
+
         }
 
         return $this->_user;
@@ -85,10 +93,18 @@ class LoginForm extends Model
     public function attributeLabels()
     {
         return [
-            'username' => '用户名',
+            'username' => '用户名 / 邮箱',
             'password' => '密码',
             'rememberMe' => '记住密码',
             'verifyCode' => '验证码',
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setVerifyCode($verifyCode)
+    {
+        $this->verifyCode = $verifyCode;
     }
 }

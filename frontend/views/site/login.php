@@ -20,19 +20,21 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <div class="row">
         <div class="col-lg-5">
-            <?php $form = ActiveForm::begin(['id' => 'login-form']); ?>
+            <?php $form = ActiveForm::begin(['id' => 'login-form',
+                //'method' =>'post',
+                //'enableAjaxValidation' => true,
+                //'enableClientValidation' => true,
+            ]); ?>
 
                 <?= $form->field($model, 'username')->textInput(['autofocus' => true]) ?>
 
                 <?= $form->field($model, 'password')->passwordInput() ?>
 
-<!--                --><?//= $form->field($model, 'verifyCode')->widget(Captcha::className(), [
-//                    'template' => '<div class="row"><div class="col-lg-6">{input}</div><div class="col-lg-3">{image}</div></div>',
-//                ]) ?>
-
-            <?= $form->field($model, 'verifyCode')->widget(Captcha::className(), [
-                'template' => '<div class="row"><div class="col-lg-6">{input}</div><div class="col-lg-3">{image}</div></div>',
-            ]) ?>
+            <?php if ($model->scenario == 'captchaScenario'): ?>
+                    <?= $form->field($model, 'verifyCode')->widget(Captcha::className(), [
+                        'template' => '<div class="row"><div class="col-lg-6">{input}</div><div class="col-lg-3">{image}</div></div>',
+                    ]) ?>
+                <?php endif ?>
 
                 <?= $form->field($model, 'rememberMe')->checkbox() ?>
 
